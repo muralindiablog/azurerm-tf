@@ -67,9 +67,51 @@ resource "azurerm_public_ip" "azuretf-ip" {
   name                = "azuretf-ip"
   resource_group_name = azurerm_resource_group.azuretf-rg.name
   location            = azurerm_resource_group.azuretf-rg.location
-  allocation_method   = "Static"
+  allocation_method   = "Dynamic"
 
   tags = {
     environment = "Dev"
+  }
+}
+
+
+resource "azurerm_network_interface" "azuretf-nic" {
+  name                = "azuretf-nic"
+  location            = azurerm_resource_group.azuretf-rg.location
+  resource_group_name = azurerm_resource_group.azuretf-rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.azuretf-subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.azuretf-ip.id
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "azuretf-vm" {
+  name                = "azuretf-lvm"
+  resource_group_name = azurerm_resource_group.azuretf-rg.name
+  location            = azurerm_resource_group.azuretf-rg.location
+  size                = "Standard_B1s"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.azuretf-nic.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
   }
 }
