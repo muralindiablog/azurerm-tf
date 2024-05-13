@@ -12,7 +12,7 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "mtc-rg" {
+resource "azurerm_resource_group" "azuretf-rg" {
   name     = "mtc-resources"
   location = "East US"
   tags = {
