@@ -1,7 +1,7 @@
 # Variables
 
 variable "resource_group_name" {
-  type = string
+  type    = string
   default = "vnet-main"
 }
 
@@ -33,16 +33,24 @@ provider "azurerm" {
 
 # Resources
 
-module "vnet-main" {
+resource "azurerm_resource_group" "azuretf-rg" {
+  name     = "vnet-main"
+  location = "East US"
+  tags = {
+    environment = "dev"
+  }
+}
+
+module "vnet" {
   source              = "Azure/vnet/azurerm"
-  use_for_each  = true
+  use_for_each        = true
   resource_group_name = var.resource_group_name
-  vnet_location            = var.location
+  vnet_location       = var.location
   vnet_name           = var.resource_group_name
   address_space       = var.vnet_cidr_range
   subnet_prefixes     = var.subnet_prefixes
-  subnet_names       = var.subnets_names
-  nsg_ids                 = {}
+  subnet_names        = var.subnets_names
+  nsg_ids             = {}
 
   tags = {
     environment = "dev"
@@ -53,6 +61,6 @@ module "vnet-main" {
 # output
 
 output "vnet_id" {
-  value = module.vnet-main.vnet_id
+  value = module.vnet.vnet_id
 }
 
