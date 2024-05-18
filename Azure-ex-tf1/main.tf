@@ -10,8 +10,8 @@ variable "location" {
 }
 
 variable "vnet_cidr_range" {
-  type    = string
-  default = "10.0.0.0/16"
+  type    = list(string)
+  default = ["10.0.0.0/16"]
 }
 
 variable "subnet_prefixes" {
@@ -34,13 +34,14 @@ provider "azurerm" {
 
 module "vnet-main" {
   source              = "Azure/vnet/azurerm"
+  use_for_each  = true
   resource_group_name = var.resource_group_name
-  location            = var.location
+  vnet_location            = var.location
   vnet_name           = var.resource_group_name
   address_space       = var.vnet_cidr_range
   subnet_prefixes     = var.subnet_prefixes
-  subnets_names       = var.subnets_names
-  nsg                 = {}
+  subnet_names       = var.subnets_names
+  nsg_ids                 = {}
 
   tags = {
     environment = "dev"
