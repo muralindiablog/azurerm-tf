@@ -124,3 +124,7 @@ data "azurerm_public_ip" "azuretf-ip-data" {
   name                = azurerm_public_ip.azuretf-ip.name
   resource_group_name = azurerm_resource_group.azuretf-rg.name
 }
+
+output "public_ip_address" {
+  value = "${azurerm_linux_virtual_machine.azuretf-vm.name}: ${data.azurerm_public_ip.azuretf-ip-data.ip_address}"
+}
